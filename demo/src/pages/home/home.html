@@ -7,36 +7,30 @@
 </ion-header>
 
 <ion-content>
-  <div padding>
-    <button ion-button (click)="mode = 'horizontal'">horizontal</button>
-    <button ion-button (click)="mode = 'vertical'">vertical</button>
-  </div>
 
-  <form [formGroup]="stepperForm" (ngSubmit)="onSubmit()">
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
     <ion-stepper #stepper [(selectedIndex)]="selectedIndex" [mode]="mode" (selectIndexChange)="selectChange($event)">
-      <ion-step label="Name"
-                description="Your name">
-        <ion-input formControlName="name" placeholder="Text Input"></ion-input>
-        <button type="button" ion-button small ionicStepperNext [disabled]="name.invalid">Next</button>
-      </ion-step>
-      <ion-step label="Email"
-                description="Your email">
-        <ion-input formControlName="email" placeholder="Text Input"></ion-input>
-        <button type="button" ion-button color="light" small ionicStepperPrevious>Previous</button>
-        <button type="button" ion-button small ionicStepperNext [disabled]="email.invalid">Next</button>
-      </ion-step>
-      <ion-step label="Address"
-                description="Your address">
-        <ion-input formControlName="address" placeholder="Text Input"></ion-input>
-        <button type="button" ion-button color="light" small ionicStepperPrevious>Previous</button>
-        <button type="button" ion-button small ionicStepperNext>Next</button>
-      </ion-step>
-      <ion-step label="Confirm"
-                description="Confirm your input">
-        <pre>{{ _JSONString }}</pre>
-        <button type="reset" ion-button color="light" small (click)="onReset()">Reset</button>
-        <button ion-button small type="submit">Submit</button>
-      </ion-step>
+      <div *ngFor="let step of steps; let index = index; let last = last;">
+        <ion-step [label]="step.label" [description]="step.label">
+          <formly-form
+            [form]="form.at(index)"
+            [model]="model"
+            [fields]="step.fields"
+            [options]="options[index]">
+          </formly-form>
+
+          <div>
+            <button ion-button *ngIf="index !== 0" ionicStepperPrevious class="btn btn-primary" type="button" (click)="prevStep(index)">Back</button>
+            <button ion-button *ngIf="!last" ionicStepperNext class="btn btn-primary" type="button" [disabled]="!form.at(index).valid" (click)="nextStep(index)">Next</button>
+            <button ion-button *ngIf="last" class="btn btn-primary" [disabled]="!form.valid" type="submit">Submit</button>
+          </div>
+        </ion-step>
+      </div>
+
     </ion-stepper>
   </form>
+
+  {{result}}
+
 </ion-content>

@@ -1,51 +1,97 @@
-import { Component, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, ViewChild, ViewChildren, QueryList } from "@angular/core";
+import { FormArray, FormGroup } from "@angular/forms";
+import { FormlyFormOptions, FormlyFieldConfig } from "@ngx-formly/core";
 import { IonicStepperComponent } from "ionic-stepper";
+import { Content } from "ionic-angular";
+
+export interface StepType {
+  label: string;
+  fields: FormlyFieldConfig[];
+}
 
 @Component({
-  selector: 'page-home',
-  templateUrl: 'home.html'
+  selector: "page-home",
+  templateUrl: "home.html"
 })
 export class HomePage {
-  mode:string = 'vertical';
-  selectedIndex = 0;
+  mode: string = "vertical";
+  selectedIndex: number = 0;
   stepperForm: FormGroup;
-  _JSONString: string = '';
+  _JSONString: string = "";
 
-  get name() { return this.stepperForm.get('name') }
-  get email() { return this.stepperForm.get('email') }
-  get address() { return this.stepperForm.get('address') }
+  activedStep = 0;
 
-  @ViewChild('stepper') stepper: IonicStepperComponent;
-  constructor(private fb: FormBuilder) {
-    this.stepperForm = fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      address: ['']
-    })
+  model = {};
+  steps: StepType[] = [
+    {
+      label: "Personal data",
+      fields: [
+        {
+          key: "firstname",
+          type: "input",
+          templateOptions: {
+            label: "First name",
+            required: true
+          }
+        },
+        {
+          key: "age",
+          type: "input",
+          templateOptions: {
+            type: "number",
+            label: "Age",
+            required: true
+          }
+        }
+      ]
+    },
+    {
+      label: "Destination",
+      fields: [
+        {
+          key: "country",
+          type: "input",
+          templateOptions: {
+            label: "Country",
+            required: true
+          }
+        }
+      ]
+    },
+    {
+      label: "Day of the trip",
+      fields: [
+        {
+          key: "day",
+          type: "input",
+          templateOptions: {
+            type: "date",
+            label: "Day of the trip",
+            required: true
+          }
+        }
+      ]
+    }
+  ];
+
+  form = new FormArray(this.steps.map(() => new FormGroup({})));
+  options = this.steps.map(() => <FormlyFormOptions>{});
+
+  result: string;
+
+  selectChange(e: number) {
+    this.selectedIndex = e;
   }
 
-  selectChange(e) {
-    console.log(e);
+  prevStep(step) {
+    this.activedStep = step - 1;
   }
 
-  onSubmit() {
-    this._JSONString = JSON.stringify(
-      this.stepperForm.getRawValue(),
-      null,
-      2
-    );
+  nextStep(step) {
+    this.activedStep = step + 1;
   }
 
-  onReset() {
-    this.stepperForm.reset({
-      name: '',
-      email: '',
-      address: '',
-    });
-    this._JSONString = '';
-    this.stepper.setStep(0)
+  submit() {
+    this.result = JSON.stringify(this.model);
   }
-
-
 }
